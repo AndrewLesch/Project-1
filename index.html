@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Test 1</title>
+    <link rel="stylesheet" href="/Test 1/styles/app.css" />
+    <script src="/Test 1/scripts/js.js" defer></script>
+  </head>
+  <body>
+      <div class="container">
+        <form id="add-people-form">
+          <input
+            type="text" 
+            class="container-input" 
+            id = "first-name-input" 
+            placeholder="Введите Имя" 
+            maxlength="30" 
+            required>
+          <input 
+            type="text" 
+            class="container-input" 
+            id = "last-name-input" 
+            placeholder="Введите Фамилию" 
+            maxlength="30" 
+            required>
+          <input 
+            type="date" 
+            class="container-input" 
+            id = "date-input" 
+            min = "1900-01-01" 
+            max = "2022-01-10" 
+            required>
+          <input 
+            type="number" 
+            class="container-input" 
+            id="weight-input" 
+            placeholder="Введите вес(Кг)" 
+            min="1" 
+            max="9999" 
+            required>
+          <input
+             type="submit" 
+             class="add-person" 
+             id="add-person" 
+             value="Добавить человека">
+        </form>
+      </div>
+      <div id="people-list-div">
+      </div>
+  </body> 
+</html>
