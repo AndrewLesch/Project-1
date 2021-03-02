@@ -2,7 +2,7 @@ const addPeopleForm = document.getElementById('add-people-form');
 const peopleListDiv = document.getElementById("people-list-div");
 const people = [];
 
-function renderPeople(Person) {
+function renderInTable(Person) {
   let peopleList = document.getElementById('peopleList');
   if (peopleList === null) {
     createTable();
@@ -14,6 +14,26 @@ function renderPeople(Person) {
   }
 }
 
+function renderFromForm(Person) {
+  people.push(Person);
+  renderInTable(Person);
+  localStorage.setItem("key", JSON.stringify(people));
+  console.log(localStorage);
+}
+
+function renderSavedPeople() {
+  let savedPerson = JSON.parse(localStorage.getItem("key"));
+  console.log(localStorage);
+  console.log(savedPerson);
+  if (savedPerson === null){
+    return;
+  } else {
+    savedPerson.forEach(Element => {
+    renderInTable(Element);
+  }
+    )};
+}
+renderSavedPeople();
 function createTable() {
     const table = document.createElement("table");
     peopleListDiv.append(table);
@@ -45,7 +65,6 @@ function createTd(Person){
   const personWeight = document.createElement("td");
   const deleteBtn = document.createElement("BUTTON");
   deleteBtn.setAttribute('id','deleteBtn');
-  deleteBtn.addEventListener("click",deleteTr);
   fillTextContent(Person,personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn);
   appendChilds(personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn);
 }
@@ -53,6 +72,12 @@ function createTd(Person){
 function appendChilds(FirstName,LastName,DateOfBirth,Weight,deleteBtn) {
   const tr = document.createElement("tr");
   peopleList.append(tr);
+  deleteBtn.addEventListener("click", () => {
+    tr.remove();
+    people.splice(0,1);
+    console.log(people);
+  });
+  
   tr.setAttribute('id','tableEl');
   tr.appendChild(FirstName);
   tr.appendChild(LastName);
@@ -89,8 +114,7 @@ function addPersonHandler(event) {
     dateOfBirth : dateOfBirth,
     weight : weight,
   };
-  people.push(Person);
-  renderPeople(Person);
+  renderFromForm(Person);
 }
 
 
@@ -103,14 +127,3 @@ function deleteTr() {
   tr = document.getElementById("tableEl");
   table.removeChild(tr);
 }
-
-/*
-console.log(localStorage);
-localStorage.clear();
-
- function Test(Person) {
-  let keyName = localStorage.length + +"1";
-  localStorage.setItem(keyName, JSON.stringify(Person));
-  let savedPerson = JSON.parse(localStorage.getItem(keyName));  
-}
-*/
