@@ -1,39 +1,46 @@
 const addPeopleForm = document.getElementById('add-people-form');
 const peopleListDiv = document.getElementById("people-list-div");
-const people = [];
+let people = [];
+const PEOPLE_LOCAL_STORAGE_KEY = "people";
 
-function renderInTable(Person) {
+renderSavedPeople();
+
+
+function addPersonToTable(person) {
   let peopleList = document.getElementById('peopleList');
   if (peopleList === null) {
     createTable();
   };
-  createTd(Person);
+  createTd(person);
   console.log(people);
   if(people.length > 6) {
-    removeTableElement();
+    removeTableRow();
   }
 }
 
-function renderFromForm(Person) {
-  people.push(Person);
-  renderInTable(Person);
-  localStorage.setItem("key", JSON.stringify(people));
-  console.log(localStorage);
+
+function addPerson(person) {
+    people.push(person);
+    addPersonToTable(person);
+    localStorage.setItem(PEOPLE_LOCAL_STORAGE_KEY, JSON.stringify(people));
+    console.log(localStorage);
 }
+
 
 function renderSavedPeople() {
-  let savedPerson = JSON.parse(localStorage.getItem("key"));
+  const savedPeople = JSON.parse(localStorage.getItem(PEOPLE_LOCAL_STORAGE_KEY));
+  people = savedPeople; 
   console.log(localStorage);
-  console.log(savedPerson);
-  if (savedPerson === null){
-    return;
-  } else {
-    savedPerson.forEach(Element => {
-    renderInTable(Element);
-  }
-    )};
-}
-renderSavedPeople();
+  console.log(savedPeople);
+  if (savedPeople){
+    savedPeople.forEach(function(person,i) {
+      createTd(person, i);
+    });
+    } 
+}; 
+
+
+
 function createTable() {
     const table = document.createElement("table");
     peopleListDiv.append(table);
@@ -57,24 +64,24 @@ function createTable() {
 }
 
 
-
-function createTd(Person){
+function createTd(person,currentIndex){
   const personFirstName = document.createElement("td");
   const personLastName = document.createElement("td");
   const personDateOfBirth = document.createElement("td");
   const personWeight = document.createElement("td");
   const deleteBtn = document.createElement("BUTTON");
   deleteBtn.setAttribute('id','deleteBtn');
-  fillTextContent(Person,personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn);
-  appendChilds(personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn);
+  fillTextContent(person,personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn);
+  appendChilds(personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn,currentIndex);
 }
 
-function appendChilds(FirstName,LastName,DateOfBirth,Weight,deleteBtn) {
+
+function appendChilds(FirstName,LastName,DateOfBirth,Weight,deleteBtn,currentIndex = people.length - 1) {
   const tr = document.createElement("tr");
   peopleList.append(tr);
   deleteBtn.addEventListener("click", () => {
     tr.remove();
-    people.splice(0,1);
+    people.splice(currentIndex,1);
     console.log(people);
   });
   
@@ -87,20 +94,22 @@ function appendChilds(FirstName,LastName,DateOfBirth,Weight,deleteBtn) {
 }
 
 
-function fillTextContent(Person,personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn) {
-  personFirstName.textContent = Person.firstName;
-  personLastName.textContent = Person.lastName; 
-  personDateOfBirth.textContent = Person.dateOfBirth;
-  personWeight.textContent = Person.weight;
+function fillTextContent(person,personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn) {
+  personFirstName.textContent = person.firstName;
+  personLastName.textContent = person.lastName; 
+  personDateOfBirth.textContent = person.dateOfBirth;
+  personWeight.textContent = person.weight;
   deleteBtn.textContent = "x"; 
 }
 
-function removeTableElement() {
+
+function removeTableRow() {
   table = document.getElementById("peopleList");
   people.shift();
   tr = document.getElementById("tableEl");
   table.removeChild(tr);
 }
+
 
 function addPersonHandler(event) {
   event.preventDefault();
@@ -108,22 +117,14 @@ function addPersonHandler(event) {
   const lastName = document.getElementById("last-name-input").value;
   const dateOfBirth = document.getElementById("date-input").value;
   const weight = document.getElementById("weight-input").value;
-  const Person = {
+  const person = {
     firstName : firstName,
     lastName : lastName,
     dateOfBirth : dateOfBirth,
     weight : weight,
   };
-  renderFromForm(Person);
+  addPerson(person);
 }
 
 
 addPeopleForm.addEventListener("submit", addPersonHandler);
-
-
-function deleteTr() {
-  table = document.getElementById("peopleList");
-  people.shift();
-  tr = document.getElementById("tableEl");
-  table.removeChild(tr);
-}
