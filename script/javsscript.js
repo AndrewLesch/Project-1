@@ -9,8 +9,7 @@ renderSavedPeople();
 function addPersonToTable(person) {
   let peopleList = document.getElementById('peopleList');
   if (peopleList === null) {
-    createTable();
-  };
+    createTable();}
   createTd(person);
   console.log(people);
   if(people.length > 6) {
@@ -19,9 +18,17 @@ function addPersonToTable(person) {
 }
 
 
-function addPerson(person) {
-    people.push(person);
-    addPersonToTable(person);
+function addPerson(newPerson) {
+  if (people.some(person => 
+    newPerson.firstName === person.firstName &&
+    newPerson.lastName  === person.lastName &&
+    newPerson.dateOfBirth === person.dateOfBirth 
+    )) {
+      alert("Введите уникального челика");
+      return;
+    }
+    people.push(newPerson);
+    addPersonToTable(newPerson);
     localStorage.setItem(PEOPLE_LOCAL_STORAGE_KEY, JSON.stringify(people));
     console.log(localStorage);
 }
@@ -29,14 +36,12 @@ function addPerson(person) {
 
 function renderSavedPeople() {
   const savedPeople = JSON.parse(localStorage.getItem(PEOPLE_LOCAL_STORAGE_KEY));
-  people = savedPeople; 
-  console.log(localStorage);
-  console.log(savedPeople);
-  if (savedPeople){
-    savedPeople.forEach(function(person,i) {
-      createTd(person, i);
+  if(savedPeople) {
+    people = savedPeople;
+    people.forEach(person => {
+      addPersonToTable(person);
     });
-    } 
+  }
 }; 
 
 
@@ -64,7 +69,7 @@ function createTable() {
 }
 
 
-function createTd(person,currentIndex){
+function createTd(person){
   const personFirstName = document.createElement("td");
   const personLastName = document.createElement("td");
   const personDateOfBirth = document.createElement("td");
@@ -72,17 +77,24 @@ function createTd(person,currentIndex){
   const deleteBtn = document.createElement("BUTTON");
   deleteBtn.setAttribute('id','deleteBtn');
   fillTextContent(person,personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn);
-  appendChilds(personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn,currentIndex);
+  appendChilds(personFirstName,personLastName,personDateOfBirth,personWeight,deleteBtn);
 }
 
 
-function appendChilds(FirstName,LastName,DateOfBirth,Weight,deleteBtn,currentIndex = people.length - 1) {
+function appendChilds(FirstName,LastName,DateOfBirth,Weight,deleteBtn) {
   const tr = document.createElement("tr");
   peopleList.append(tr);
   deleteBtn.addEventListener("click", () => {
     tr.remove();
-    people.splice(currentIndex,1);
-    console.log(people);
+    let removeIndex = people.findIndex( person => 
+        person.firstName === person.firstName &&
+        person.lastName === person.lastName &&
+        person.dateOfBirth === person.dateOfBirth 
+      );
+      people.splice(removeIndex,1);
+      console.log(people);
+      console.log(removeIndex);
+      localStorage.setItem(PEOPLE_LOCAL_STORAGE_KEY, JSON.stringify(people));
   });
   
   tr.setAttribute('id','tableEl');
