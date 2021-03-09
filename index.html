@@ -9,7 +9,7 @@
     <script src="script/javsscript.js" defer></script>
   </head>
   <body>
-      <div class="container">
+      <div class="container" id="container">
         <form id="add-people-form">
           <input
             type="text" 
@@ -17,7 +17,9 @@
             id = "first-name-input" 
             placeholder="Введите Имя" 
             maxlength="30" 
-            required>
+            required
+            onchange="deleteError()"
+            >
           <input 
             type="text" 
             class="container-input" 
@@ -31,7 +33,9 @@
             id = "date-input" 
             min = "1900-01-01" 
             max = "2022-01-10" 
-            required>
+            required
+            onchange="deleteError()"
+            >
           <input 
             type="number" 
             class="container-input" 
@@ -39,12 +43,16 @@
             placeholder="Введите вес(Кг)" 
             min="1" 
             max="150" 
-            required>
+            required
+            onchange="deleteError()"
+            >
           <input
              type="submit" 
              class="add-person" 
              id="add-person" 
-             value="Добавить человека">
+             value="Добавить человека"
+             onchange="deleteError()"
+             >
         </form>
       </div>
       <div id="people-list-div">
