@@ -27,11 +27,7 @@ function addPerson(newPerson) {
     newPerson.lastName  === person.lastName &&
     newPerson.dateOfBirth === person.dateOfBirth 
     )) {
-
-      uniqueError.classList.add("error-class");
-      uniqueError.innerHTML = "Введите уникального пользователя";
-
-      document.getElementById("container").appendChild(uniqueError);
+      setUniqueError();
       return;
     } 
 
@@ -41,10 +37,14 @@ function addPerson(newPerson) {
     console.log(localStorage);
 }
 
-function deleteError() {
-  if(uniqueError.textContent == "Введите уникального пользователя"){
-    document.getElementById("container").removeChild(uniqueError);
-  }
+function setUniqueError() {
+  uniqueError.classList.add("error-class");
+  uniqueError.innerHTML = "Введите уникального пользователя";
+  document.getElementById("add-person").before(uniqueError);
+}
+
+function clearUniqueError() {
+  [...document.getElementById("add-people-form").childNodes].find(node => node === uniqueError)?.remove();
 }
 
 function renderSavedPeople() {
@@ -63,12 +63,10 @@ function createTable() {
     const tableDateOfBirth = document.createElement("td");
     const tableWeight = document.createElement("td");
     const tr = document.createElement("tr");
-    const btn = document.createElement("BUTTON");
-    const btn1 = document.createElement("BUTTON");
-    const btn2 = document.createElement("BUTTON");
-    btn.textContent = "Sort";
-    btn1.textContent = "Sort";
-    btn2.textContent = "Sort";
+
+    tableFirstName.addEventListener("click", () => {sort()});
+    tableLastName.addEventListener("click", () => {sort()});
+    tableDateOfBirth.addEventListener("click", () => {sort()});
 
     peopleListDiv.append(table);
     table.setAttribute('id','peopleList');
@@ -77,9 +75,6 @@ function createTable() {
     tableLastName.textContent = "Фамилия";
     tableDateOfBirth.textContent = "Дата рождения";
     tableWeight.textContent = "Вес";
-    peopleList.append(btn);
-    peopleList.append(btn1);
-    peopleList.append(btn2);
     peopleList.append(tr);
     tr.appendChild(tableFirstName);
     tr.appendChild(tableLastName);
@@ -90,7 +85,6 @@ function createTable() {
 function createTableRow(person) {
   const tr = document.createElement("tr");
   peopleList.append(tr);
-  
   
   const personFirstName = document.createElement("td");
   const personLastName = document.createElement("td");
@@ -158,23 +152,11 @@ function addPersonHandler(event) {
 
 addPeopleForm.addEventListener("submit", addPersonHandler);
 
-
-function byField(field) {
-  if(field == "dateOfBirth") {
-    return (a, b) => +a[field] > +b[field] ? 1 : -1;
-  } else {
-      return (a, b) => a[field] > b[field] ? 1 : -1;
-  }
+function sort() {
+  const list = document.querySelector("#peopleList");
+  const [headerNode, ...personNodes] = list.children;
+  console.log(...personNodes);
+  personNodes.sort((a,b) => a.nodeValue > b.nodeValue ? 1 : -1);
+  personNodes.forEach(node=>list.appendChild(node));
+  
 }
-
-function byFieldObratnaya(field) {
-  if(field == "dateOfBirth") {
-    return (a, b) => +a[field] > +b[field] ? -1 : 1;
-  } else {
-      return (a, b) => a[field] > b[field] ? -1 : 1;
-  }
-}
-
-people.sort(byField('dateOfBirth'));
-people.sort(byField('lastName'));
-people.sort(byField('firtName'));
