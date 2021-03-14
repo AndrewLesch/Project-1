@@ -3,6 +3,10 @@ const peopleListDiv = document.getElementById("people-list-div");
 let people = [];
 const PEOPLE_LOCAL_STORAGE_KEY = "people";
 const uniqueError = document.createElement("p");
+let sortOrder = "";
+let sortedType = "";
+let sortIndex;
+let currentSort = null;
 
 renderSavedPeople();
 
@@ -12,7 +16,7 @@ function addPersonToTable(person) {
   if (peopleList === null) {
     createTable();
   }
-
+  
   createTableRow(person);
   console.log(people);
 
@@ -33,8 +37,17 @@ function addPerson(newPerson) {
 
     people.push(newPerson);
     addPersonToTable(newPerson);
+
+    if (sortOrder === "direct") {
+      directSort(sortIndex,sortedType)();
+    } else {
+      reverseSort(sortIndex,sortedType)();
+    }
+
+    console.log(sortedType,sortOrder,sortIndex);
     localStorage.setItem(PEOPLE_LOCAL_STORAGE_KEY, JSON.stringify(people));
     console.log(localStorage);
+    
 }
 
 function setUniqueError() {
@@ -64,9 +77,10 @@ function createTable() {
     const tableWeight = document.createElement("td");
     const tr = document.createElement("tr");
 
-    tableFirstName.addEventListener("click", () => {sort()});
-    tableLastName.addEventListener("click", () => {sort()});
-    tableDateOfBirth.addEventListener("click", () => {sort()});
+    tableFirstName.addEventListener("click", () => {sort(0,"string")});
+    tableLastName.addEventListener("click", () => {sort(1,"string")});
+    tableDateOfBirth.addEventListener("click", () => {sort(2,"date")});
+    tableWeight.addEventListener("click", () => {sort(3,"number")});
 
     peopleListDiv.append(table);
     table.setAttribute('id','peopleList');
@@ -150,13 +164,82 @@ function addPersonHandler(event) {
   addPerson(person);
 }
 
-addPeopleForm.addEventListener("submit", addPersonHandler);
-
-function sort() {
-  const list = document.querySelector("#peopleList");
-  const [headerNode, ...personNodes] = list.children;
-  console.log(...personNodes);
-  personNodes.sort((a,b) => a.nodeValue > b.nodeValue ? 1 : -1);
-  personNodes.forEach(node=>list.appendChild(node));
-  
+function sort(rowIndex, type) {
+    if (currentSort === null) {
+      currentSort = "asc";
+      directSort(rowIndex, type)();
+    } else if(currentSort === "asc"){
+      currentSort = "desc"
+      reverseSort(rowIndex, type)();
+    } else {
+      currentSort = null;
+      noSort(unsortedTr); // сюда должен дойти несортированный массив
+    }
 }
+
+function directSort(rowIndex, type) {
+  sortOrder = "direct";
+  sortedType = type;
+  sortIndex = rowIndex;
+
+  return function () {
+    const list = document.querySelector("#peopleList");
+    const [headerNode, ...personNodes] = list.children;
+    let unsortedTr = personNodes.slice(); // по идее отсюда ну и из функции ниже он должен придти перед сортировками, хотя полсе каждой сортировки уже не 
+    // сортированный будет просто с прошлой сортировокой, пока не понял как это сделать
+    console.log(unsortedTr);
+    
+    personNodes.sort((a,b) => {
+      const nodeA = a.children[rowIndex];
+      const nodeB = b.children[rowIndex];
+
+      const textA = nodeA.innerText;
+      const textB = nodeB.innerText;
+
+      if (type === "data") {
+        return new Date(textA) - new Date(textB);
+      } else if (type === "number") {
+        return parseInt(textA) - parseInt(textB);
+      } else if (type === "string") {
+        return textA.localeCompare(textB);
+      }
+    });
+
+    personNodes.forEach(node=>list.appendChild(node));
+  }
+}
+
+function reverseSort(rowIndex, type) {
+  sortOrder = "reverse";
+  sortedType = type;
+  sortIndex = rowIndex;
+
+  return function () {
+    const list = document.querySelector("#peopleList");
+    const [headerNode, ...personNodes] = list.children;
+    
+    personNodes.sort((a,b) => {
+      const nodeA = a.children[rowIndex];
+      const nodeB = b.children[rowIndex];
+
+      const textA = nodeA.innerText;
+      const textB = nodeB.innerText;
+
+      if (type === "data") {
+        return new Date(textB) - new Date(textA);
+      } else if (type === "number") {
+        return parseInt(textB) - parseInt(textA);
+      } else if (type === "string") {
+        return textB.localeCompare(textA);
+      }
+    });
+
+    personNodes.forEach(node=>list.appendChild(node));
+  }
+}
+
+function noSort (unsortedTr) {
+  unsortedTr.forEach(node=>list.appendChild(node));// по идее тут просто мы это делаем и все должно работать
+}
+
+addPeopleForm.addEventListener("submit", addPersonHandler);
