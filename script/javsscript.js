@@ -40,8 +40,10 @@ function addPerson(newPerson) {
 
     if (sortOrder === "direct") {
       directSort(sortIndex,sortedType)();
+    } else if( sortOrder === "reverse") {
+      reverseSort(sortIndex,sortedType);
     } else {
-      reverseSort(sortIndex,sortedType)();
+      alert("Peson add without sort");
     }
 
     console.log(sortedType,sortOrder,sortIndex);
@@ -167,79 +169,79 @@ function addPersonHandler(event) {
 function sort(rowIndex, type) {
     if (currentSort === null) {
       currentSort = "asc";
-      directSort(rowIndex, type)();
+      directSort(rowIndex, type);
     } else if(currentSort === "asc"){
       currentSort = "desc"
-      reverseSort(rowIndex, type)();
+      reverseSort(rowIndex, type);
     } else {
       currentSort = null;
-      noSort(unsortedTr); // сюда должен дойти несортированный массив
+      resetSort(rowIndex); 
     }
 }
 
 function directSort(rowIndex, type) {
+
   sortOrder = "direct";
   sortedType = type;
   sortIndex = rowIndex;
 
-  return function () {
-    const list = document.querySelector("#peopleList");
-    const [headerNode, ...personNodes] = list.children;
-    let unsortedTr = personNodes.slice(); // по идее отсюда ну и из функции ниже он должен придти перед сортировками, хотя полсе каждой сортировки уже не 
-    // сортированный будет просто с прошлой сортировокой, пока не понял как это сделать
-    console.log(unsortedTr);
+  const list = document.querySelector("#peopleList");
+  const [headerNode, ...personNodes] = list.children;
     
-    personNodes.sort((a,b) => {
-      const nodeA = a.children[rowIndex];
-      const nodeB = b.children[rowIndex];
+  personNodes.sort((a,b) => {
+  const nodeA = a.children[rowIndex];
+  const nodeB = b.children[rowIndex];
 
-      const textA = nodeA.innerText;
-      const textB = nodeB.innerText;
+  const textA = nodeA.innerText;
+  const textB = nodeB.innerText;
 
-      if (type === "data") {
-        return new Date(textA) - new Date(textB);
-      } else if (type === "number") {
-        return parseInt(textA) - parseInt(textB);
-      } else if (type === "string") {
-        return textA.localeCompare(textB);
-      }
-    });
-
-    personNodes.forEach(node=>list.appendChild(node));
+  if (type === "date") {
+    return new Date(textA) - new Date(textB);
+  } else if (type === "number") {
+    return parseInt(textA) - parseInt(textB);
+  } else if (type === "string") {
+    return textA.localeCompare(textB);
   }
+  });
+
+  personNodes.forEach(node=>list.appendChild(node));
 }
 
 function reverseSort(rowIndex, type) {
+
   sortOrder = "reverse";
   sortedType = type;
   sortIndex = rowIndex;
 
-  return function () {
-    const list = document.querySelector("#peopleList");
-    const [headerNode, ...personNodes] = list.children;
+  const list = document.querySelector("#peopleList");
+  const [headerNode, ...personNodes] = list.children;
     
-    personNodes.sort((a,b) => {
-      const nodeA = a.children[rowIndex];
-      const nodeB = b.children[rowIndex];
+  personNodes.sort((a,b) => {
+  const nodeA = a.children[rowIndex];
+  const nodeB = b.children[rowIndex];
 
-      const textA = nodeA.innerText;
-      const textB = nodeB.innerText;
+  const textA = nodeA.innerText;
+  const textB = nodeB.innerText;
 
-      if (type === "data") {
-        return new Date(textB) - new Date(textA);
-      } else if (type === "number") {
-        return parseInt(textB) - parseInt(textA);
-      } else if (type === "string") {
-        return textB.localeCompare(textA);
-      }
-    });
+  if (type === "date") {
+      return new Date(textB) - new Date(textA);
+    } else if (type === "number") {
+      return parseInt(textB) - parseInt(textA);
+    } else if (type === "string") {
+      return textB.localeCompare(textA);
+    }
+  });
 
-    personNodes.forEach(node=>list.appendChild(node));
-  }
+  personNodes.forEach(node=>list.appendChild(node));
 }
 
-function noSort (unsortedTr) {
-  unsortedTr.forEach(node=>list.appendChild(node));// по идее тут просто мы это делаем и все должно работать
+function resetSort() {
+  const list = document.querySelector("#peopleList");
+  while (list.children.length > 1) {
+    list.removeChild(list.lastChild);
+}
+  people.forEach(addPersonToTable);
+ 
 }
 
 addPeopleForm.addEventListener("submit", addPersonHandler);
