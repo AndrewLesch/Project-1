@@ -3,9 +3,9 @@ const peopleListDiv = document.getElementById("people-list-div");
 let people = [];
 const PEOPLE_LOCAL_STORAGE_KEY = "people";
 const uniqueError = document.createElement("p");
-let sortOrder = "";
-let sortedType = "";
+let sortedType;
 let sortIndex;
+let sortOrder;
 let currentSort = null;
 
 renderSavedPeople();
@@ -18,7 +18,6 @@ function addPersonToTable(person) {
   }
   
   createTableRow(person);
-  console.log(people);
 
   if(people.length > 6) {
     removeTableRow();
@@ -39,18 +38,21 @@ function addPerson(newPerson) {
     addPersonToTable(newPerson);
 
     if (sortOrder === "direct") {
-      directSort(sortIndex,sortedType)();
-    } else if( sortOrder === "reverse") {
-      reverseSort(sortIndex,sortedType);
-    } else {
-      alert("Peson add without sort");
+      console.log(currentSort);
+      currentSort = null;
+      sort(sortIndex,sortedType);
+    }  else if (sortOrder === "reverse") {
+      console.log(currentSort);
+      currentSort = "asc";
+      sort(sortIndex,sortedType);
     }
+      else {
+        alert("Peson add without sort");
+      }
 
-    console.log(sortedType,sortOrder,sortIndex);
     localStorage.setItem(PEOPLE_LOCAL_STORAGE_KEY, JSON.stringify(people));
-    console.log(localStorage);
-    
 }
+    
 
 function setUniqueError() {
   uniqueError.classList.add("error-class");
@@ -167,81 +169,73 @@ function addPersonHandler(event) {
 }
 
 function sort(rowIndex, type) {
-    if (currentSort === null) {
+  
+  const list = document.querySelector("#peopleList");
+  const [headerNode, ...personNodes] = list.children;
+  
+  sortedType = type;
+  sortIndex = rowIndex;
+
+
+  if (currentSort === null) {
+
+    sortOrder = "direct";
+
+    personNodes.sort((a,b) => {
+      const nodeA = a.children[rowIndex];
+      const nodeB = b.children[rowIndex];
+    
+      const textA = nodeA.innerText;
+      const textB = nodeB.innerText;
+    
+      if (type === "date") {
+        return new Date(textA) - new Date(textB);
+      } else if (type === "number") {
+        return parseInt(textA) - parseInt(textB);
+      } else if (type === "string") {
+        return textA.localeCompare(textB);
+      }
+      });
+
+      personNodes.forEach(node=>list.appendChild(node));
       currentSort = "asc";
-      directSort(rowIndex, type);
-    } else if(currentSort === "asc"){
-      currentSort = "desc"
-      reverseSort(rowIndex, type);
-    } else {
-      currentSort = null;
-      resetSort(rowIndex); 
-    }
-}
 
-function directSort(rowIndex, type) {
+  } else if (currentSort === "asc") {
 
-  sortOrder = "direct";
-  sortedType = type;
-  sortIndex = rowIndex;
-
-  const list = document.querySelector("#peopleList");
-  const [headerNode, ...personNodes] = list.children;
+    sortOrder = "reverse";
     
-  personNodes.sort((a,b) => {
-  const nodeA = a.children[rowIndex];
-  const nodeB = b.children[rowIndex];
-
-  const textA = nodeA.innerText;
-  const textB = nodeB.innerText;
-
-  if (type === "date") {
-    return new Date(textA) - new Date(textB);
-  } else if (type === "number") {
-    return parseInt(textA) - parseInt(textB);
-  } else if (type === "string") {
-    return textA.localeCompare(textB);
-  }
-  });
-
-  personNodes.forEach(node=>list.appendChild(node));
-}
-
-function reverseSort(rowIndex, type) {
-
-  sortOrder = "reverse";
-  sortedType = type;
-  sortIndex = rowIndex;
-
-  const list = document.querySelector("#peopleList");
-  const [headerNode, ...personNodes] = list.children;
+    personNodes.sort((a,b) => {
+      const nodeA = a.children[rowIndex];
+      const nodeB = b.children[rowIndex];
     
-  personNodes.sort((a,b) => {
-  const nodeA = a.children[rowIndex];
-  const nodeB = b.children[rowIndex];
+      const textA = nodeA.innerText;
+      const textB = nodeB.innerText;
+    
+      if (type === "date") {
+          return new Date(textB) - new Date(textA);
+        } else if (type === "number") {
+          return parseInt(textB) - parseInt(textA);
+        } else if (type === "string") {
+          return textB.localeCompare(textA);
+        }
+      });
 
-  const textA = nodeA.innerText;
-  const textB = nodeB.innerText;
+      personNodes.forEach(node=>list.appendChild(node));
+      currentSort = "decs";
 
-  if (type === "date") {
-      return new Date(textB) - new Date(textA);
-    } else if (type === "number") {
-      return parseInt(textB) - parseInt(textA);
-    } else if (type === "string") {
-      return textB.localeCompare(textA);
+  } else {
+
+    currentSort = null;
+
+    while (list.children.length > 1) {
+      list.removeChild(list.lastChild);
     }
-  });
 
-  personNodes.forEach(node=>list.appendChild(node));
+    people.forEach(addPersonToTable);
+    }
+
 }
 
-function resetSort() {
-  const list = document.querySelector("#peopleList");
-  while (list.children.length > 1) {
-    list.removeChild(list.lastChild);
-}
-  people.forEach(addPersonToTable);
- 
-}
+
 
 addPeopleForm.addEventListener("submit", addPersonHandler);
