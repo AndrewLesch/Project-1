@@ -5,7 +5,6 @@ const PEOPLE_LOCAL_STORAGE_KEY = "people";
 const uniqueError = document.createElement("p");
 let sortedType;
 let sortIndex;
-let sortOrder;
 let currentSort = null;
 
 renderSavedPeople();
@@ -37,12 +36,10 @@ function addPerson(newPerson) {
     people.push(newPerson);
     addPersonToTable(newPerson);
 
-    if (sortOrder === "direct") {
-      console.log(currentSort);
+    if (currentSort === "asc") {
       currentSort = null;
       sort(sortIndex,sortedType);
-    }  else if (sortOrder === "reverse") {
-      console.log(currentSort);
+    }  else if (currentSort === "decs") {
       currentSort = "asc";
       sort(sortIndex,sortedType);
     }
@@ -137,8 +134,6 @@ function createTableRow(person) {
         people.splice(removeIndex,1);
         localStorage.setItem(PEOPLE_LOCAL_STORAGE_KEY, JSON.stringify(people));
       }
-
-      console.log(people);
   });
 }
 
@@ -172,14 +167,12 @@ function sort(rowIndex, type) {
   
   const list = document.querySelector("#peopleList");
   const [headerNode, ...personNodes] = list.children;
-  
+
   sortedType = type;
   sortIndex = rowIndex;
 
 
   if (currentSort === null) {
-
-    sortOrder = "direct";
 
     personNodes.sort((a,b) => {
       const nodeA = a.children[rowIndex];
@@ -202,8 +195,6 @@ function sort(rowIndex, type) {
 
   } else if (currentSort === "asc") {
 
-    sortOrder = "reverse";
-    
     personNodes.sort((a,b) => {
       const nodeA = a.children[rowIndex];
       const nodeB = b.children[rowIndex];
@@ -233,7 +224,6 @@ function sort(rowIndex, type) {
 
     people.forEach(addPersonToTable);
     }
-
 }
 
 
